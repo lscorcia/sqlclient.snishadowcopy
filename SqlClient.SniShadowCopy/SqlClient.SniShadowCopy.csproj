@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Luca Leonardo Scorcia</Authors>
+    <Company />
+    <Description>Allows loading the Microsoft.SqlClient.Data native assemblies from the IIS shadow copy location.</Description>
+    <Copyright>(c)2021 Luca Leonardo Scorcia</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>SqlClient.SniShadowCopy</PackageId>
+    <Product>SqlClient.SniShadowCopy</Product>
+    <PackageProjectUrl>https://github.com/lscorcia/sqlclient.snishadowcopy/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lscorcia/sqlclient.snishadowcopy/</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
