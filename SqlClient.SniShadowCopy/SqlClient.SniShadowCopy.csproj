@@ -12,6 +12,8 @@
     <Product>SqlClient.SniShadowCopy</Product>
     <PackageProjectUrl>https://github.com/lscorcia/sqlclient.snishadowcopy/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lscorcia/sqlclient.snishadowcopy/</RepositoryUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
 </Project>
