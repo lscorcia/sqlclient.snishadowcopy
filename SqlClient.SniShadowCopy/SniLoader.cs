@@ -37,31 +37,32 @@ namespace SqlClient.SniShadowCopy
 
             // Retrieve the main assembly location for the current AppDomain
             AppDomain appDomain = AppDomain.CurrentDomain;
-            string currentPrivatePath = appDomain.RelativeSearchPath;
-            string currentShadowPath = appDomain.DynamicDirectory;
 
             System.Diagnostics.Debug.WriteLine(
                 String.Format("SniLoader::ForceShadowNativeAssembly - AppDomain private path is '{0}'",
-                    currentPrivatePath));
+                    appDomain.RelativeSearchPath));
 
             // Look for the main Microsoft.Data.SqlClient assembly in the shadow copy path
+            string sqlClientAssemblyName = "Microsoft.Data.SqlClient.dll";
             var sqlClientShadowAssembly = Directory.GetFiles(
-                currentShadowPath, "Microsoft.Data.SqlClient.dll",
-                SearchOption.AllDirectories).FirstOrDefault();
+                appDomain.DynamicDirectory, sqlClientAssemblyName,
+                SearchOption.AllDirectories)
+                .OrderByDescending(filePath => new FileInfo(filePath).CreationTimeUtc)
+				.FirstOrDefault();
 
             if (String.IsNullOrEmpty(sqlClientShadowAssembly))
             {
                 // Assembly not found, let's bail out
-                System.Diagnostics.Debug.WriteLine(
-                    "SniLoader::ForceShadowNativeAssembly - Shadow assembly for Microsoft.Data.SqlClient.dll not found");
+                System.Diagnostics.Debug.WriteLine(String.Format(
+                    "SniLoader::ForceShadowNativeAssembly - Shadow assembly for {0} not found", sqlClientAssemblyName));
 
                 return;
             }
 
             // Assembly found
-            System.Diagnostics.Debug.WriteLine(
-                String.Format("SniLoader::ForceShadowNativeAssembly - Shadow assembly for Microsoft.Data.SqlClient.dll is '{0}'",
-                    sqlClientShadowAssembly));
+            System.Diagnostics.Debug.WriteLine(String.Format(
+                "SniLoader::ForceShadowNativeAssembly - Shadow assembly for {0} is '{1}'",
+                sqlClientAssemblyName, sqlClientShadowAssembly));
 
             // Extract the directory information from the shadow assembly path
             var sqlClientShadowPath = Path.GetDirectoryName(sqlClientShadowAssembly);
@@ -69,26 +70,26 @@ namespace SqlClient.SniShadowCopy
             if (String.IsNullOrEmpty(sqlClientShadowPath))
             {
                 // This shouldn't happen, if we're here something's wrong
-                System.Diagnostics.Debug.WriteLine(
-                    "SniLoader::ForceShadowNativeAssembly - Shadow path for Microsoft.Data.SqlClient.dll is null or empty");
+                System.Diagnostics.Debug.WriteLine(String.Format(
+                    "SniLoader::ForceShadowNativeAssembly - Shadow path for {0} is null or empty", sqlClientAssemblyName));
 
                 return;
             }
 
-            System.Diagnostics.Debug.WriteLine(
-                String.Format("SniLoader::ForceShadowNativeAssembly - Shadow path for Microsoft.Data.SqlClient.dll is '{0}'",
-                    sqlClientShadowPath));
+            System.Diagnostics.Debug.WriteLine(String.Format(
+                "SniLoader::ForceShadowNativeAssembly - Shadow path for {0} is '{1}'",
+                    sqlClientAssemblyName, sqlClientShadowPath));
 
             // Compute the source and target paths for the native assembly
-            var sourceFile = Path.Combine(currentPrivatePath, moduleName);
+            var sourceFile = Path.Combine(appDomain.RelativeSearchPath, moduleName);
             var targetFile = Path.Combine(sqlClientShadowPath, moduleName);
 
             // Make sure the source file exists
             if (!File.Exists(sourceFile))
             {
-                System.Diagnostics.Debug.WriteLine(
-                    String.Format("SniLoader::ForceShadowNativeAssembly - Source file '{0}' not found",
-                        sourceFile));
+                System.Diagnostics.Debug.WriteLine(String.Format(
+                    "SniLoader::ForceShadowNativeAssembly - Source file '{0}' not found",
+                    sourceFile));
 
                 return;
             }
@@ -96,17 +97,17 @@ namespace SqlClient.SniShadowCopy
             // Make sure the target file does not exist
             if (File.Exists(targetFile))
             {
-                System.Diagnostics.Debug.WriteLine(
-                    String.Format("SniLoader::ForceShadowNativeAssembly - Target file '{0}' already exists, nothing to do",
-                        targetFile));
+                System.Diagnostics.Debug.WriteLine(String.Format(
+                    "SniLoader::ForceShadowNativeAssembly - Target file '{0}' already exists, nothing to do",
+					targetFile));
 
                 return;
             }
 
             // Copy the native assembly under the shadow path
-            System.Diagnostics.Debug.WriteLine(
-                String.Format("SniLoader::ForceShadowNativeAssembly - Copying '{0}' to '{1}'",
-                    sourceFile, targetFile));
+            System.Diagnostics.Debug.WriteLine(String.Format(
+				"SniLoader::ForceShadowNativeAssembly - Copying '{0}' to '{1}'",
+                sourceFile, targetFile));
 
             File.Copy(sourceFile, targetFile);
         }
