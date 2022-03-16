@@ -47,6 +47,7 @@ namespace SqlClient.SniShadowCopy
             var sqlClientShadowAssembly = Directory.GetFiles(
                 appDomain.DynamicDirectory, sqlClientAssemblyName,
                 SearchOption.AllDirectories)
+                .OrderByDescending(filePath => new FileInfo(filePath).CreationTimeUtc)
 				.FirstOrDefault();
 
             if (String.IsNullOrEmpty(sqlClientShadowAssembly))
